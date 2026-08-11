@@ -1,10 +1,10 @@
 import {createServer} from "http";
-import express, {Express, Request, Response} from "express";
+import express, {Express} from "express";
+import { writeHandler } from "./writeHandler";
 
 const expressApp : Express = express();
-expressApp.get('{*splat}', (req: Request, res: Response) => {
-    res.end("Hello, World");
-})
+expressApp.use(express.static(`./reactapp/dist`));
+expressApp.post('/upload', writeHandler);
 
 const server = createServer(expressApp);
 server.listen(5000, ()=> {

@@ -1,0 +1,12 @@
+.file_uploader {
+    display: flex;
+    flex-direction: column;
+    row-gap: 2rem;
+    align-items: center;
+}
+.file_input {
+    display: none;
+    padding-left: 30%;
+    font-size: large;
+    align-content: center;
+}
