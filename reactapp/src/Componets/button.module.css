@@ -1,0 +1,25 @@
+.click {
+    position: relative;
+    font-size: 3rem;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid gray;
+    background-color: rgb(183, 240, 183);
+}
+.click:hover {
+    background-color: rgb(170, 223, 170);
+    box-shadow: 0px 0px 10px black;
+}
+.click:active {
+    right: 3px;
+    top: 3px;
+}
+.nonclick {
+    cursor: not-allowed;
+    position: relative;
+    font-size: 3rem;
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid gray;
+    background-color: rgb(207, 224, 207);
+}

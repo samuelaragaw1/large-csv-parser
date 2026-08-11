@@ -1,0 +1,10 @@
+.bar{
+    border: 2px solid black;
+    width: 40%;
+    height: 2rem;
+}
+.precentage {
+    height: inherit;
+    background-image: linear-gradient( green, white, green);
+    background-size: 50% 100%;
+}
