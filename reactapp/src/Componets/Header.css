@@ -2,6 +2,6 @@ h1 {
     border-bottom: 2px gray solid;
     text-align: center;
     align-content: center;
-    height: 10rem;
+    height: fit-content;
     font-size: 4rem;
 }

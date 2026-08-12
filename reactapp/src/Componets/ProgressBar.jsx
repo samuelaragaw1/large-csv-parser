@@ -1,12 +1,18 @@
 import './ProgressBar.css';
 
-function ProgressBar({percent}) {
+function ProgressBar({percent, error}) {
+    const colorProgress = error === true ? 'red' : 'green'
+    return <div style={{
 
-    return <div className='bar'>
-        <div style={{
-            width: `${percent}%`
-        }} 
-        className='precentage'></div>
+        }}>
+            <div className='bar'>
+                <div style={{
+                    width: `${percent}%`,
+                    backgroundImage: `linear-gradient( ${colorProgress}, white, ${colorProgress})`
+                    }} 
+                    className='precentage'>
+                </div>
+            </div>
     </div>
 }
 

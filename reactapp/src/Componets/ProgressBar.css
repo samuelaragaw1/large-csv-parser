@@ -5,6 +5,5 @@
 }
 .precentage {
     height: inherit;
-    background-image: linear-gradient( green, white, green);
     background-size: 50% 100%;
 }

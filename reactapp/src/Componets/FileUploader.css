@@ -3,6 +3,7 @@
     flex-direction: column;
     row-gap: 2rem;
     align-items: center;
+    width: 100%;
 }
 .file_input {
     display: none;
