@@ -7,10 +7,12 @@ export const writeHandler = async (req: Request, res: Response) => {
     req.pipe(writeStream);
     writeStream.on('finish', () => {
         res.status(200);
-        res.send("finised");
+        res.json({
+            fileName: `${fileName}.csv`
+        });
     })
     writeStream.on('error', () => {
         res.status(500);
-        res.send("error");
+        res.send('error');
     })
 }

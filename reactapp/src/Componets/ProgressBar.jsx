@@ -3,7 +3,11 @@ import './ProgressBar.css';
 function ProgressBar({percent, error}) {
     const colorProgress = error === true ? 'red' : 'green'
     return <div style={{
-
+            width: '40%',
+            display: 'flex',
+            flexDirection: 'row',
+            columnGap: '1rem',
+            alignItems: 'center'
         }}>
             <div className='bar'>
                 <div style={{
@@ -12,6 +16,13 @@ function ProgressBar({percent, error}) {
                     }} 
                     className='precentage'>
                 </div>
+            </div>
+            <div 
+                style={{
+                    fontSize: '1.5rem'
+                }}
+            >
+                {`${percent}%`}
             </div>
     </div>
 }

@@ -1,30 +1,27 @@
-import { useEffect, useRef, useState} from 'react';
+import {useRef, useState} from 'react';
 import Button from './Button';
 import './FileUploader.css';
 import ProgressBar from './ProgressBar';
 import axios from 'axios';
+import { buttonStateHandler } from './buttonStateHandler';
+import { buttonTextHandler } from './buttonTextHandler';
 
+//uploadState states
+//1, choosing
+//2, ready_to_upload
+//3, uploading
+//4, uploaded
+//5, error_u
+//6, processing
+//7, error_p
+//8, processed
 
-
-function FileUploader(props) {
-    const {ref} = props;
+function FileUploader() {
+    const [processFile, setprocessFile] = useState('');
     const inputRef = useRef(null);
     const [fileName, setFileName] = useState(null);
     const [upLoadState, setUploadState] = useState('choosing');
-    //uploadState states
-    //1, choosing
-    //2, ready_to_upload
-    //3, uploading
-    //4, uploaded
-    //5, error_u
-    //6, processing
-    //7, error_p
-    //8, processed
     const [progress, setProgress] = useState(0);
-
-
-    ref.current.status = upLoadState; 
-
 
 
     function progressHandler() {
@@ -60,7 +57,7 @@ function FileUploader(props) {
 
             try {
                 setUploadState(() => 'uploading');
-                await axios.post('/upload', formData, {
+                const response = await axios.post('/upload', formData, {
                     headers: {
                         'File-Name': fileName.name
                     },
@@ -73,13 +70,18 @@ function FileUploader(props) {
                     }
                 })
 
+                const responseFileName = await response.data.fileName;
+
+                setprocessFile(responseFileName);
+                console.log(responseFileName);
+
                 setUploadState('uploaded')
             }
             catch (err) {
                 setUploadState('error_u');
             }
         }
-        else {
+        else if (upLoadState === 'uploaded') {
             //
         }
     }
@@ -92,54 +94,10 @@ function FileUploader(props) {
             ref={inputRef}
             onChange={handleFileName}
         />
-        <Button type={
-            // upLoadState === 'uploading' ? 'nonclick' : 'click'
-            () => {
-                if (upLoadState === 'choosing'
-                    || upLoadState === 'ready_to_upload'
-                    || upLoadState === 'uploaded'
-                    || upLoadState === 'error_u'
-                    || upLoadState === 'error_p'
-                    || upLoadState === 'processed'
-                ) {
-                    return 'click';
-                }
-                else if (upLoadState === 'uploading'
-                    || upLoadState === 'processing'
-                ) {
-                    return 'nonclick'
-                }
-            }
-            } 
+        <Button type={buttonStateHandler(upLoadState)} 
             onClick={upload}
         >
-            {
-                () => {
-                    if (upLoadState === 'choosing') {
-                        return 'Choose File';
-                    }
-                    else if (upLoadState === 'ready_to_upload'
-                        || upLoadState === 'uploading'
-                    ) {
-                        return 'Upload File';
-                    }
-                    else if (upLoadState === 'uploaded') {
-                        return 'Process'
-                    }
-                    else if (upLoadState === 'error_u') {
-                        return 'Upload File'
-                    }
-                    else if (upLoadState === 'processing') {
-                        return 'Process'
-                    }
-                    else if (upLoadState === 'error_p') {
-                        return 'Process'
-                    }
-                    else if (upLoadState === 'processed') {
-                        return 'Download'
-                    }
-                }
-            }
+            {buttonTextHandler(upLoadState, fileName)}
         </Button>
         <div>{fileName ? fileName.name : null}</div>
         {progressHandler()}
