@@ -22,6 +22,7 @@ function FileUploader() {
     const [fileName, setFileName] = useState(null);
     const [upLoadState, setUploadState] = useState('choosing');
     const [progress, setProgress] = useState(0);
+    const eventSourceRef = useRef(null);
 
 
     function progressHandler() {
@@ -41,7 +42,7 @@ function FileUploader() {
         if (file) {
             setFileName(() => file);
         }
-        console.log(file);
+        // console.log(file);
     }
 
     async function upload() {
@@ -58,9 +59,9 @@ function FileUploader() {
             try {
                 setUploadState(() => 'uploading');
                 const response = await axios.post('/upload', formData, {
-                    headers: {
-                        'File-Name': fileName.name
-                    },
+                    // headers: {
+                    //     'File-Name': fileName.name
+                    // },
                     onUploadProgress: (event) => {
                         if (event.total) {
                             const precentCompleted = 
@@ -70,19 +71,62 @@ function FileUploader() {
                     }
                 })
 
-                const responseFileName = await response.data.fileName;
+                const responseData = await response.data;
 
-                setprocessFile(responseFileName);
-                console.log(responseFileName);
+                setprocessFile(responseData.fileName);
 
                 setUploadState('uploaded')
             }
-            catch (err) {
+            catch  {
                 setUploadState('error_u');
             }
         }
         else if (upLoadState === 'uploaded') {
-            //
+            try {
+                setUploadState('processing');
+                const response =  await axios.post(`/process`,  {
+                    fileName: processFile
+                });
+                const {jobId, total} = await response.data;
+                
+                const evtSource = new EventSource(
+                    `/process/${jobId}/progress`
+                )
+                
+                eventSourceRef.current = evtSource;
+
+                evtSource.onmessage = (event) => {
+                    const msg = JSON.parse(event.data);
+                    if (msg.type === 'progress') {
+                        setProgress(Math.round(msg.done/msg.total * 100));
+                    }
+                    if (msg.type === 'done') {
+                        setUploadState('processed');
+                        setProgress(100);
+                        evtSource.close();
+                    }
+                    if (msg.type === 'error') {
+                        setUploadState('error_p')
+                        evtSource.close();
+                    }
+                }
+
+                evtSource.onerror = () => {
+                    setUploadState('error_p');
+                    evtSource.close();
+                };
+
+                evtSource.onopen = () => {
+                    fetch(`/process/${jobId}`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({total, processFile})
+                    })
+                }
+            }
+            catch {
+                setUploadState('error_p');
+            }
         }
     }
     
