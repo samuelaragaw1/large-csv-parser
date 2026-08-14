@@ -1,9 +1,8 @@
 import { Response, Request } from "express";
-import fs from "node:fs";
 import { Worker } from "node:worker_threads";
-import readline from 'readline';
+import { Job } from "./server";
 
-export const countHandler = async (req: Request, res: Response, job: any) => {
+export const countHandler = async (req: Request, res: Response, job: Map<string, Job>) => {
     const jobId = crypto.randomUUID();
     // const total = await countLine(req.body.fileName);
     const worker = new Worker('./dist/countWorker.js', {
@@ -12,7 +11,12 @@ export const countHandler = async (req: Request, res: Response, job: any) => {
         }
     })
     worker.on('message', (msg)=> {
-        job.set(jobId, {progress: 0, total: msg, status: 'ready'});
+        job.set(jobId, {
+            progress: 0, 
+            total: msg, 
+            status: 'ready', 
+            client: res
+        });
         res.json({
             jobId: jobId,
             total: msg,
