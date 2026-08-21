@@ -4,7 +4,7 @@ import { Job } from "./server";
 export const SSEHandler = (req: Request, 
     res: Response, 
     job: Map<string, Job>,
-    jobId: string
+    jobId: any
 ) => {
     if (job.has(jobId)) {
         const currentJob: 

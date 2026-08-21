@@ -17,6 +17,7 @@ import { buttonTextHandler } from './buttonTextHandler';
 //8, processed
 
 function FileUploader() {
+    const [downloadFile, setDownloadFile] = useState('')
     const [processFile, setprocessFile] = useState('');
     const inputRef = useRef(null);
     const [fileName, setFileName] = useState(null);
@@ -34,6 +35,9 @@ function FileUploader() {
         }
         else if (upLoadState === 'error') {
             return <ProgressBar percent={progress} error={true}/>;
+        }
+        else if (upLoadState === 'processing') {
+            return <ProgressBar percent={progress} error={false}/>;
         }
     }
 
@@ -84,28 +88,30 @@ function FileUploader() {
         else if (upLoadState === 'uploaded') {
             try {
                 setUploadState('processing');
+                setProgress(0);
                 const response =  await axios.post(`/process`,  {
                     fileName: processFile
                 });
                 const {jobId, total} = await response.data;
                 
                 const evtSource = new EventSource(
-                    `/process/${jobId}/progress`
+                    `http://localhost:5000/process/${jobId}/progress`
                 )
                 
                 eventSourceRef.current = evtSource;
 
                 evtSource.onmessage = (event) => {
                     const msg = JSON.parse(event.data);
-                    if (msg.type === 'progress') {
-                        setProgress(Math.round(msg.done/msg.total * 100));
+                    if (msg.status === 'processing') {
+                        setProgress(Math.round(msg.progress));
                     }
-                    if (msg.type === 'done') {
+                    if (msg.status === 'finished') {
+                        setDownloadFile(msg.result);
                         setUploadState('processed');
                         setProgress(100);
                         evtSource.close();
                     }
-                    if (msg.type === 'error') {
+                    if (msg.status === 'error') {
                         setUploadState('error_p')
                         evtSource.close();
                     }
@@ -117,7 +123,7 @@ function FileUploader() {
                 };
 
                 evtSource.onopen = () => {
-                    fetch(`/process/${jobId}`, {
+                    fetch(`http://localhost:5000/process/${jobId}`, {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify({total, processFile})
@@ -127,6 +133,14 @@ function FileUploader() {
             catch {
                 setUploadState('error_p');
             }
+        }
+        else if (upLoadState === "processed") {
+            console.log(downloadFile);
+            await fetch(`/download/${downloadFile}`, 
+                {
+                    method: "GET"
+                }
+            )
         }
     }
     

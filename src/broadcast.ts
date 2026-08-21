@@ -5,16 +5,14 @@ export const broadcast = (
     jobId: string, 
     msg: {
         progress: number, 
-        status: string
+        status: string,
+        result?: string
     }, 
-    job: Map<string, Job>,
-    res: express.Response
+    job: Map<string, Job>
 ) => {
-    if (job.has(jobId)) {
-        const currentJob = job.get(jobId);
-        const payload = JSON.stringify(msg);
-        if (currentJob) {
-            currentJob.client?.write(`data: ${payload}`);
-        }
+    const currentJob = job.get(jobId);
+    const payload = JSON.stringify(msg);
+    if (currentJob) {
+        currentJob.client?.write(`data: ${payload}\n\n`);
     }
 }
